@@ -22,7 +22,9 @@ def index():
 
         if action == "closed" and merged is True and base == "dev":
             repository = repositories[repository_name]
-            subprocess.Popen([repository['shell_script_path']], stdin=subprocess.PIPE)
+            sh_path = repository['shell_script_path']
+            result = subprocess.Popen(['sh', sh_path], stdin=subprocess.PIPE)
+            print(result.communicate())
             print(repository['shell_script_path'])
             print('Subprocess called!')
 
