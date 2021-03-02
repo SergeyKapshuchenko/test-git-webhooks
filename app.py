@@ -13,16 +13,18 @@ repositories = {
 @app.route("/", methods=['POST'])
 def index():
     response = request.get_json()
-    action = response["action"]
-    merged = response["pull_request"]["merged"]
-    base = response["pull_request"]["base"]["ref"]
-    repository_name = response["repository"]["name"]
+    
+    if 'action' in response:
+        action = response["action"]
+        merged = response["pull_request"]["merged"]
+        base = response["pull_request"]["base"]["ref"]
+        repository_name = response["repository"]["name"]
 
-    if action == "closed" and merged is True and base == "dev":
-        repository = repositories[repository_name]
-        subprocess.Popen(repository['shell_script_path'])
-        print(repository['shell_script_path'])
-        print('Subprocess called!')
+        if action == "closed" and merged is True and base == "dev":
+            repository = repositories[repository_name]
+            subprocess.Popen(repository['shell_script_path'])
+            print(repository['shell_script_path'])
+            print('Subprocess called!')
 
     return {'status': 'OK'}
 
