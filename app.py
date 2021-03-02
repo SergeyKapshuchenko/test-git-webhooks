@@ -12,8 +12,8 @@ def index():
     response = request.get_json()
     action = response["action"]
     merged = response["pull_request"]["merged"]
-    repository_name = response["pull_request"]["repository"]["name"]
     base = response["pull_request"]["base"]["ref"]
+    repository_name = response["repository"]["name"]
 
     if action == "closed" and merged is True and base == "dev":
         path_to_folder = folders[repository_name]
