@@ -1,9 +1,12 @@
+import subprocess
 from flask import Flask, request
 
 app = Flask(__name__)
 
-folders = {
-    "test-git-webhooks": "this is path to folder"
+repositories = {
+    "test-git-webhooks": {
+        "shell_script_path": "/home/deploy/tests/pull_test_git_webhooks.sh"
+    }
 }
 
 
@@ -16,24 +19,10 @@ def index():
     repository_name = response["repository"]["name"]
 
     if action == "closed" and merged is True and base == "dev":
-        path_to_folder = folders[repository_name]
-        print(path_to_folder)
-        error = False
-        message = 'trying to git pull'
-    else:
-        error = True
-        message = 'something went wrong'
+        repository = repositories[repository_name]
+        subprocess.Popen(repository['shell_script_path'])
 
-    return {
-        'error': error,
-        'message': message,
-        'fields': {
-            'action': action,
-            'merged': merged,
-            'repository_name': repository_name,
-            'base': base
-        }
-    }
+    return {'status': 'OK'}
 
 
 if __name__ == "__main__":
