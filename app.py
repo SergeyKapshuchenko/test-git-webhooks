@@ -4,8 +4,8 @@ from flask import Flask, request
 app = Flask(__name__)
 
 repositories = {
-    "test-git-webhooks": {
-        "shell_script_path": "/home/deploy/tests/pull_test_git_webhooks.sh"
+    "test-blabla": {
+        "shell_script_path": "/home/deploy/tests/pull_test.sh"
     }
 }
 
@@ -13,7 +13,7 @@ repositories = {
 @app.route("/", methods=['POST'])
 def index():
     response = request.get_json()
-    
+
     if 'action' in response:
         action = response["action"]
         merged = response["pull_request"]["merged"]
