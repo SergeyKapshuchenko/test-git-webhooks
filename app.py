@@ -1,14 +1,39 @@
 from flask import Flask, request
 
+app = Flask(__name__)
 
-app = Flask(__name__)  # Standard Flask app
+folders = {
+    "test-git-webhooks": "this is path to folder"
+}
 
 
-@app.route("/", methods=['GET', 'POST'])        # Standard Flask endpoint
-def hello_world():
-    data = request.get_json()
-    print(data)
-    return "Hello, World!"
+@app.route("/", methods=['POST'])
+def index():
+    response = request.get_json()
+    action = response["action"]
+    merged = response["pull_request"]["merged"]
+    repository_name = response["pull_request"]["repository"]["name"]
+    base = response["pull_request"]["base"]["ref"]
+
+    if action == "closed" and merged is True and base == "dev":
+        path_to_folder = folders[repository_name]
+        print(path_to_folder)
+        error = False
+        message = 'trying to git pull'
+    else:
+        error = True
+        message = 'something went wrong'
+
+    return {
+        'error': error,
+        'message': message,
+        'fields': {
+            'action': action,
+            'merged': merged,
+            'repository_name': repository_name,
+            'base': base
+        }
+    }
 
 
 if __name__ == "__main__":
