@@ -1,33 +1,34 @@
 import subprocess
 from flask import Flask, request
 
-app = Flask(__name__)
+from config import repositories
 
-repositories = {
-    "test-blabla": {
-        "shell_script_path": "/home/deploy/tests/pull_test.sh"
-    }
-}
+app = Flask(__name__)
 
 
 @app.route("/", methods=['POST'])
 def index():
     response = request.get_json()
 
-    if 'action' in response:
-        action = response["action"]
-        merged = response["pull_request"]["merged"]
-        base = response["pull_request"]["base"]["ref"]
-        repository_name = response["repository"]["name"]
+    if 'action' not in response:
+        return {'status': 'OK'}
 
-        if action == "closed" and merged is True and base == "dev":
-            repository = repositories[repository_name]
-            sh_path = repository['shell_script_path']
-            subprocess.Popen(['sh', sh_path], stdin=subprocess.PIPE)
-            print('Subprocess called!')
-            return {'status': 'OK', 'message': 'Subprocess called!'}
+    action = response["action"]
+    merged = response["pull_request"]["merged"]
+    base = response["pull_request"]["base"]["ref"]
+    repository_name = response["repository"]["name"]
 
-    return {'status': 'OK'}
+    if repository_name not in repositories or action != "closed" or merged is False:
+        return {'status': 'OK'}
+
+    repository = repositories[repository_name]
+    branch = repository[base]
+
+    for command in branch['commands']:
+        print(command)
+        subprocess.Popen(['sh', command, base], stdin=subprocess.PIPE)
+
+    return {'status': 'OK', 'message': 'commands executed!'}
 
 
 if __name__ == "__main__":
